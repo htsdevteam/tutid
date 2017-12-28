@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNet.Identity;
+﻿using IdentityFromScratch.Models;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using System.Threading.Tasks;
 using System.Web.Mvc;
@@ -10,7 +11,7 @@ namespace IdentityFromScratch.Controllers
         // GET: Home
         public async Task<ActionResult> Index()
         {
-            var context = new IdentityDbContext<IdentityUser>();
+            var context = new ApplicationDbContext();
             var store = new UserStore<IdentityUser>(context);
             var manager = new UserManager<IdentityUser>(store);
 
@@ -21,10 +22,8 @@ namespace IdentityFromScratch.Controllers
             if (user == null)
             {
                 user = new IdentityUser { UserName = email, Email = email };
+                await manager.CreateAsync(user, password);
             }
-
-            await manager.CreateAsync(user, password);
-
             return Content("Hello Index");
         }
     }
