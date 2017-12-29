@@ -5,6 +5,11 @@ namespace IdentityFromScratch.Models
     public class ApplicationDbContext : IdentityDbContext<CustomUser>
     {
         public ApplicationDbContext() : base() { }
+
+        public static ApplicationDbContext Create()
+        {
+            return new ApplicationDbContext();
+        }
     }
 
     public class CustomUser : IdentityUser
