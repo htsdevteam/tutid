@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNet.Identity.EntityFramework;
+﻿using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace IdentityFromScratch.Models
 {
@@ -16,6 +19,20 @@ namespace IdentityFromScratch.Models
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
+
+        public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<CustomUser> manager)
+        {
+            var userIdentity = await manager.CreateIdentityAsync(this,
+                DefaultAuthenticationTypes.ApplicationCookie);
+            return userIdentity;
+        }
+    }
+
+    public static class SecurityRoles
+    {
+        public const string Admin = "admin";
+        public const string IT = "it";
+        public const string Accounting = "accounting";
     }
 
 }

@@ -42,6 +42,20 @@ namespace IdentityFromScratch
         }
     }
 
+
+    public class ApplicationRoleManager : RoleManager<IdentityRole>
+    {
+        public ApplicationRoleManager(RoleStore<IdentityRole> roleStore)
+            : base(roleStore) { }
+
+        public static ApplicationRoleManager Create(IOwinContext owinContext)
+        {
+            var roleStore = new RoleStore<IdentityRole>(owinContext.Get<ApplicationDbContext>());
+            return new ApplicationRoleManager(roleStore);
+        }
+    }
+
+
     public class IdentityConfig
     {
         // IUser

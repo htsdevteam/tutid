@@ -17,6 +17,21 @@ namespace IdentityFromScratch.Controllers
             string password = "Passw0rd";
             CustomUser user = await UserManager.FindByEmailAsync(email);
 
+            var roleManager = ApplicationRoleManager.Create(HttpContext.GetOwinContext());
+            if (!await roleManager.RoleExistsAsync(SecurityRoles.Admin))
+            {
+                await roleManager.CreateAsync(new IdentityRole { Name = SecurityRoles.Admin });
+            }
+            if (!await roleManager.RoleExistsAsync(SecurityRoles.IT))
+            {
+                await roleManager.CreateAsync(new IdentityRole { Name = SecurityRoles.IT });
+            }
+            if (!await roleManager.RoleExistsAsync(SecurityRoles.Accounting))
+            {
+                await roleManager.CreateAsync(new IdentityRole { Name = SecurityRoles.Accounting });
+            }
+
+
             if (user == null)
             {
                 user = new CustomUser {
@@ -27,20 +42,36 @@ namespace IdentityFromScratch.Controllers
                 };
                 await UserManager.CreateAsync(user, password);
             }
-            else
-            {
-                SignInStatus result = await SignInManager.PasswordSignInAsync(user.Email,
-                    password, true, false);
-                //user.FirstName = "Super";
-                //user.LastName = "Admin";
-                //await manager.UpdateAsync(user);
 
-                if (result == SignInStatus.Success)
-                {
-                    return Content("Hello, " + user.FirstName + " " + user.LastName);
-                }
+            if (!await UserManager.IsInRoleAsync(user.Id, SecurityRoles.Admin))
+            {
+                await UserManager.AddToRoleAsync(user.Id, SecurityRoles.Admin);
             }
+            //if (!await UserManager.IsInRoleAsync(user.Id, SecurityRoles.IT))
+            //{
+            //    await UserManager.AddToRoleAsync(user.Id, SecurityRoles.IT);
+            //}
+            //if (!await UserManager.IsInRoleAsync(user.Id, SecurityRoles.Accounting))
+            //{
+            //    await UserManager.AddToRoleAsync(user.Id, SecurityRoles.Accounting);
+            //}
+
             return Content("Hello Index");
+        }
+
+        public async Task<ActionResult> Login()
+        {
+            string email = "foo@bar.com";
+            CustomUser user = await UserManager.FindByEmailAsync(email);
+
+            await SignInManager.SignInAsync(user, true, true);
+            return RedirectToAction("Index");
+        }
+
+        public ActionResult Logout()
+        {
+            HttpContext.GetOwinContext().Authentication.SignOut();
+            return RedirectToAction("Index");
         }
     }
 }
