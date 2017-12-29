@@ -11,6 +11,7 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 using Microsoft.Owin.Security;
 using IdentityAndOAuth.Models;
+using System.Net.Mail;
 
 namespace IdentityAndOAuth
 {
@@ -18,8 +19,25 @@ namespace IdentityAndOAuth
     {
         public Task SendAsync(IdentityMessage message)
         {
-            // Plug in your email service here to send an email.
-            return Task.FromResult(0);
+            var emailMessage = new MailMessage
+            {
+                From = new MailAddress("serge.karalenka@gmail.com", "Serge"),
+                Subject = message.Subject,
+                Body = message.Body,
+                IsBodyHtml = true
+            };
+
+            emailMessage.To.Add(message.Destination);
+
+            try
+            {
+                var smtpClient = new SmtpClient();
+                return smtpClient.SendMailAsync(emailMessage);
+            }
+            catch
+            {
+                return Task.FromResult(0);
+            }
         }
     }
 
